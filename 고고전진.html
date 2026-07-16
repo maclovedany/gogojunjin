@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>고고전진 놀이판</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFF9EC;
+    --dot: #FFE9B8;
+    --brown: #5D4037;
+    --yellow: #FFC93C;
+    --a-main: #5BB9F5;
+    --a-deep: #2E96DE;
+    --a-soft: #DFF1FF;
+    --b-main: #FF8FA3;
+    --b-deep: #F2637F;
+    --b-soft: #FFE9EE;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Jua', 'Gaegu', sans-serif;
+    color: var(--brown);
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(var(--dot) 12%, transparent 13%),
+      radial-gradient(var(--dot) 12%, transparent 13%);
+    background-size: 56px 56px;
+    background-position: 0 0, 28px 28px;
+    min-height: 100vh;
+    padding: 20px 20px 60px;  /* 놀이판과 브라우저 바닥 사이 60px */
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── 제목 ─────────────────────────── */
+  header {
+    text-align: center;
+    margin-top: auto;   /* 제목·놀이판 모두 화면 아래쪽으로 */
+    margin-bottom: 16px;  /* 아래에 소리 버튼 줄이 이어짐 */
+  }
+
+  .title {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    font-size: clamp(4rem, 10vw, 6.4rem);
+  }
+
+  .title .deco {
+    font-size: 0.75em;
+    animation: sway 2.6s ease-in-out infinite;
+    display: inline-block;
+  }
+  .title .deco.flip { animation-delay: 1.3s; }
+
+  .title-letters { display: inline-flex; gap: 8px; }
+
+  .title-letters span {
+    display: inline-grid;
+    place-items: center;
+    width: 1.55em;
+    height: 1.55em;
+    border-radius: 26%;
+    color: #fff;
+    text-shadow: 0 2px 0 rgba(0,0,0,.12);
+    box-shadow: 0 6px 0 rgba(93,64,55,.16);
+    animation: bounce-in .5s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  .title-letters span:nth-child(1) { background: var(--a-main); transform: rotate(-4deg); animation-delay: .05s; }
+  .title-letters span:nth-child(2) { background: var(--yellow); transform: rotate(3deg);  animation-delay: .15s; }
+  .title-letters span:nth-child(3) { background: var(--b-main); transform: rotate(-3deg); animation-delay: .25s; }
+  .title-letters span:nth-child(4) { background: #7ED9A7;       transform: rotate(4deg);  animation-delay: .35s; }
+
+  .subtitle {
+    font-family: 'Gaegu', sans-serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 4.4vw, 2.5rem);
+    margin-top: 10px;
+    color: #8D6E63;
+  }
+
+  @keyframes bounce-in {
+    0%   { opacity: 0; scale: 0.3; }
+    70%  { scale: 1.15; }
+    100% { opacity: 1; scale: 1; }
+  }
+  @keyframes sway {
+    0%, 100% { rotate: -8deg; }
+    50%      { rotate: 8deg; }
+  }
+
+  /* ── 팀 보드 ───────────────────────── */
+  .boards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 32px;
+    max-width: 1432px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .team {
+    flex: 1 1 560px;
+    max-width: 700px;
+    background: #fff;
+    border-radius: 28px;
+    padding: 22px 24px 26px;
+    box-shadow: 0 10px 0 rgba(93,64,55,.10);
+  }
+  .team-a { border: 5px solid var(--a-main); }
+  .team-b { border: 5px solid var(--b-main); }
+
+  .team-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 10px;
+  }
+
+  .team-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: clamp(1.3rem, 2.6vw, 1.7rem);
+    color: #fff;
+    padding: 6px 22px 8px;
+    border-radius: 999px;
+    text-shadow: 0 2px 0 rgba(0,0,0,.12);
+  }
+  .team-a .team-name { background: var(--a-main); box-shadow: 0 5px 0 var(--a-deep); }
+  .team-b .team-name { background: var(--b-main); box-shadow: 0 5px 0 var(--b-deep); }
+
+  .team-tools { display: flex; align-items: center; gap: 10px; }
+
+  .count {
+    font-size: 1.2rem;
+    background: var(--bg);
+    border: 3px dashed var(--yellow);
+    border-radius: 999px;
+    padding: 4px 16px;
+    min-width: 74px;
+    text-align: center;
+  }
+
+  .clear-btn {
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--brown);
+    background: var(--yellow);
+    border: none;
+    border-radius: 999px;
+    padding: 8px 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #E0A800;
+    transition: translate .1s ease, box-shadow .1s ease;
+  }
+  .clear-btn:hover { filter: brightness(1.05); }
+  .clear-btn:active { translate: 0 3px; box-shadow: 0 1px 0 #E0A800; }
+
+  /* ── 소리 버튼 (안내 문구와 놀이판 사이 우측) ── */
+  .sound-bar {
+    max-width: 1432px;  /* 놀이판 실제 너비(700×2 + 간격 32)와 우측 정렬 */
+    width: 100%;
+    margin: 0 auto 14px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .sound-btn {
+    font-family: inherit;
+    font-size: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--brown);
+    background: var(--yellow);
+    border: 4px solid #fff;
+    border-radius: 999px;
+    padding: 12px 28px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #E0A800;
+    transition: translate .1s ease, box-shadow .1s ease;
+  }
+  .sound-btn .icon { font-size: 2.2rem; line-height: 1; }
+  .sound-btn:hover { filter: brightness(1.05); }
+  .sound-btn:active { translate: 0 4px; box-shadow: 0 2px 0 #E0A800; }
+  .sound-btn[aria-pressed="false"] {
+    background: #E0E0E0;
+    box-shadow: 0 6px 0 #9E9E9E;
+    filter: grayscale(1);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: auto repeat(7, 1fr);
+    gap: 10px;
+  }
+
+  .row-num {
+    display: grid;
+    place-items: center;
+    align-self: center;
+    width: clamp(2.4rem, 4.5vw, 3.4rem);
+    height: clamp(2.4rem, 4.5vw, 3.4rem);
+    border-radius: 50%;
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    color: #fff;
+    text-shadow: 0 2px 0 rgba(0,0,0,.12);
+  }
+  .team-a .row-num { background: var(--a-main); box-shadow: 0 4px 0 var(--a-deep); }
+  .team-b .row-num { background: var(--b-main); box-shadow: 0 4px 0 var(--b-deep); }
+
+  .cell {
+    aspect-ratio: 1 / 1;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    transition: translate .12s ease, box-shadow .12s ease;
+  }
+  .team-a .cell { background: var(--a-soft); box-shadow: inset 0 -5px 0 rgba(46,150,222,.18); }
+  .team-b .cell { background: var(--b-soft); box-shadow: inset 0 -5px 0 rgba(242,99,127,.18); }
+
+  .cell:hover { translate: 0 -3px; }
+  .team-a .cell:hover { box-shadow: inset 0 -5px 0 rgba(46,150,222,.18), 0 6px 0 rgba(46,150,222,.25); }
+  .team-b .cell:hover { box-shadow: inset 0 -5px 0 rgba(242,99,127,.18), 0 6px 0 rgba(242,99,127,.25); }
+  .cell:active { translate: 0 0; }
+
+  .cell:focus-visible {
+    outline: 4px solid var(--brown);
+    outline-offset: 2px;
+  }
+
+  /* ── 동그라미 스탬프 ─────────────────── */
+  .stamp {
+    width: 68%;
+    height: 68%;
+    border-radius: 50%;
+    position: relative;
+    scale: 0;
+  }
+  .cell[aria-pressed="true"] .stamp {
+    animation: pop .35s cubic-bezier(.34,1.8,.64,1) forwards;
+  }
+  .team-a .stamp {
+    background: radial-gradient(circle at 32% 28%, #9AD7FF 18%, var(--a-main) 60%, var(--a-deep) 100%);
+    box-shadow: 0 4px 0 rgba(46,150,222,.35);
+  }
+  .team-b .stamp {
+    background: radial-gradient(circle at 32% 28%, #FFC4CF 18%, var(--b-main) 60%, var(--b-deep) 100%);
+    box-shadow: 0 4px 0 rgba(242,99,127,.35);
+  }
+  .stamp::after {
+    content: '';
+    position: absolute;
+    top: 16%; left: 20%;
+    width: 26%; height: 18%;
+    border-radius: 50%;
+    background: rgba(255,255,255,.75);
+    rotate: -25deg;
+  }
+
+  @keyframes pop {
+    0%   { scale: 0; }
+    65%  { scale: 1.18; }
+    100% { scale: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .title-letters span, .title .deco { animation: none; opacity: 1; scale: 1; }
+    .cell[aria-pressed="true"] .stamp { animation: none; scale: 1; }
+    .cell, .clear-btn { transition: none; }
+  }
+
+  @media (max-width: 640px) {
+    .grid { gap: 6px; }
+    .cell { border-radius: 14px; }
+    .team { padding: 16px 14px 18px; border-radius: 22px; }
+    .team-head { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1 class="title">
+    <span class="deco" aria-hidden="true">🚩</span>
+    <span class="title-letters" aria-label="고고전진">
+      <span aria-hidden="true">고</span><span aria-hidden="true">고</span><span aria-hidden="true">전</span><span aria-hidden="true">진</span>
+    </span>
+    <span class="deco flip" aria-hidden="true">⭐</span>
+  </h1>
+  <p class="subtitle">칸을 콕! 누르면 동그라미가 뿅! 다시 누르면 사라져요 · 우리 팀 파이팅! 🎈</p>
+</header>
+
+<div class="sound-bar">
+  <button class="sound-btn" id="sound-toggle" type="button" aria-pressed="true">
+    <span class="icon" aria-hidden="true">🔔</span><span class="label">소리 켜짐</span>
+  </button>
+</div>
+
+<main class="boards">
+  <section class="team team-a" aria-label="A팀 놀이판">
+    <div class="team-head">
+      <h2 class="team-name">🐳 A팀</h2>
+      <div class="team-tools">
+        <span class="count" id="count-a" aria-live="polite">⭕ 0개</span>
+        <button class="clear-btn" type="button" data-clear="a">모두 지우기</button>
+      </div>
+    </div>
+    <div class="grid" id="grid-a" role="group" aria-label="A팀 칸"></div>
+  </section>
+
+  <section class="team team-b" aria-label="B팀 놀이판">
+    <div class="team-head">
+      <h2 class="team-name">🍑 B팀</h2>
+      <div class="team-tools">
+        <span class="count" id="count-b" aria-live="polite">⭕ 0개</span>
+        <button class="clear-btn" type="button" data-clear="b">모두 지우기</button>
+      </div>
+    </div>
+    <div class="grid" id="grid-b" role="group" aria-label="B팀 칸"></div>
+  </section>
+</main>
+
+<script>
+  const COLS = 7, ROWS = 5;
+
+  /* ── 뾰옹~ 효과음 (웹 오디오 합성) ───── */
+  let soundOn = true;
+  let audioCtx = null;
+
+  function playPyong() {
+    if (!soundOn) return;
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const t = audioCtx.currentTime;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(330, t);
+    osc.frequency.exponentialRampToValueAtTime(980, t + 0.16);
+    osc.frequency.exponentialRampToValueAtTime(780, t + 0.30);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.30, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.38);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + 0.4);
+
+    const sub = audioCtx.createOscillator();
+    const subGain = audioCtx.createGain();
+    sub.type = 'triangle';
+    sub.frequency.setValueAtTime(660, t);
+    sub.frequency.exponentialRampToValueAtTime(1960, t + 0.16);
+    subGain.gain.setValueAtTime(0.0001, t);
+    subGain.gain.exponentialRampToValueAtTime(0.08, t + 0.02);
+    subGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+    sub.connect(subGain).connect(audioCtx.destination);
+    sub.start(t);
+    sub.stop(t + 0.3);
+  }
+
+  const soundBtn = document.getElementById('sound-toggle');
+  soundBtn.addEventListener('click', () => {
+    soundOn = !soundOn;
+    soundBtn.setAttribute('aria-pressed', String(soundOn));
+    soundBtn.querySelector('.icon').textContent = soundOn ? '🔔' : '🔕';
+    soundBtn.querySelector('.label').textContent = soundOn ? '소리 켜짐' : '소리 꺼짐';
+    if (soundOn) playPyong();
+  });
+
+  function buildBoard(teamId) {
+    const grid = document.getElementById('grid-' + teamId);
+    for (let r = 1; r <= ROWS; r++) {
+      const num = document.createElement('div');
+      num.className = 'row-num';
+      num.textContent = r;
+      num.setAttribute('aria-hidden', 'true');
+      grid.appendChild(num);
+      for (let c = 1; c <= COLS; c++) {
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'cell';
+        cell.setAttribute('aria-pressed', 'false');
+        cell.setAttribute('aria-label', r + '행 ' + c + '열');
+        cell.innerHTML = '<span class="stamp" aria-hidden="true"></span>';
+        cell.addEventListener('click', () => {
+          const on = cell.getAttribute('aria-pressed') === 'true';
+          cell.setAttribute('aria-pressed', String(!on));
+          if (!on) playPyong();  /* 동그라미가 생길 때만 소리 */
+          updateCount(teamId);
+        });
+        grid.appendChild(cell);
+      }
+    }
+  }
+
+  function updateCount(teamId) {
+    const n = document.querySelectorAll('#grid-' + teamId + ' .cell[aria-pressed="true"]').length;
+    document.getElementById('count-' + teamId).textContent = '⭕ ' + n + '개';
+  }
+
+  document.querySelectorAll('.clear-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const teamId = btn.dataset.clear;
+      document.querySelectorAll('#grid-' + teamId + ' .cell')
+        .forEach(cell => cell.setAttribute('aria-pressed', 'false'));
+      updateCount(teamId);
+    });
+  });
+
+  buildBoard('a');
+  buildBoard('b');
+</script>
+
+</body>
+</html>
