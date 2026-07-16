@@ -48,8 +48,9 @@
   .title {
     display: inline-flex;
     align-items: center;
-    gap: 14px;
-    font-size: clamp(4rem, 10vw, 6.4rem);
+    gap: clamp(6px, 1.5vw, 14px);
+    font-size: clamp(2.2rem, 9vw, 6.4rem);
+    max-width: 100%;
   }
 
   .title .deco {
@@ -59,7 +60,7 @@
   }
   .title .deco.flip { animation-delay: 1.3s; }
 
-  .title-letters { display: inline-flex; gap: 8px; }
+  .title-letters { display: inline-flex; gap: clamp(4px, 1vw, 8px); }
 
   .title-letters span {
     display: inline-grid;
@@ -80,7 +81,8 @@
   .subtitle {
     font-family: 'Gaegu', sans-serif;
     font-weight: 700;
-    font-size: clamp(2rem, 4.4vw, 2.5rem);
+    font-size: clamp(1.1rem, 4vw, 2.5rem);
+    padding: 0 10px;
     margin-top: 10px;
     color: #8D6E63;
   }
@@ -99,7 +101,7 @@
   .boards {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: center;  /* 표를 항상 가로 가운데 정렬 */
     align-items: flex-end;
     gap: 32px;
     max-width: 1432px;
@@ -110,6 +112,7 @@
   .team {
     flex: 1 1 560px;
     max-width: 700px;
+    min-width: 0;  /* 좁은 화면에서 카드가 화면 밖으로 밀리지 않게 */
     background: #fff;
     border-radius: 28px;
     padding: 22px 24px 26px;
@@ -221,6 +224,7 @@
 
   .cell {
     aspect-ratio: 1 / 1;
+    min-width: 0;
     border: none;
     border-radius: 20px;
     cursor: pointer;
@@ -284,10 +288,24 @@
   }
 
   @media (max-width: 640px) {
-    .grid { gap: 6px; }
-    .cell { border-radius: 14px; }
-    .team { padding: 16px 14px 18px; border-radius: 22px; }
-    .team-head { flex-wrap: wrap; }
+    body { padding: 16px 10px 24px; }
+    header { margin-bottom: 10px; }
+    .grid { gap: 5px; }
+    .cell { border-radius: 10px; }
+    .team { padding: 12px 10px 14px; border-radius: 18px; border-width: 4px; }
+    .team-head { flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+    .row-num {
+      width: 1.7rem;
+      height: 1.7rem;
+      font-size: 1.1rem;
+      box-shadow: none !important;
+    }
+    .count { font-size: 1rem; min-width: 60px; padding: 3px 12px; }
+    .clear-btn { font-size: 0.9rem; padding: 6px 14px; }
+    .sound-bar { margin-bottom: 10px; justify-content: center; }
+    .sound-btn { font-size: 1.1rem; padding: 8px 20px; border-width: 3px; }
+    .sound-btn .icon { font-size: 1.5rem; }
+    .boards { gap: 20px; }
   }
 </style>
 </head>
