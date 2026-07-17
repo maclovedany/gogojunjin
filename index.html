@@ -175,8 +175,47 @@
     width: 100%;
     margin: 0 auto 14px;
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
   }
+
+  /* ── 행/열 크기 선택 ─────────────────── */
+  .size-picker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.3rem;
+    background: #fff;
+    border: 4px solid var(--yellow);
+    border-radius: 999px;
+    padding: 8px 20px;
+    box-shadow: 0 6px 0 rgba(93,64,55,.12);
+  }
+
+  .size-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .size-picker select {
+    font-family: inherit;
+    font-size: 1.2rem;
+    color: var(--brown);
+    background: var(--bg);
+    border: 3px dashed var(--yellow);
+    border-radius: 12px;
+    padding: 4px 10px;
+    cursor: pointer;
+  }
+  .size-picker select:focus-visible {
+    outline: 4px solid var(--brown);
+    outline-offset: 2px;
+  }
+
+  .size-x { color: #8D6E63; font-size: 1.1rem; }
 
   .sound-btn {
     font-family: inherit;
@@ -302,9 +341,11 @@
     }
     .count { font-size: 1rem; min-width: 60px; padding: 3px 12px; }
     .clear-btn { font-size: 0.9rem; padding: 6px 14px; }
-    .sound-bar { margin-bottom: 10px; justify-content: center; }
+    .sound-bar { margin-bottom: 10px; justify-content: center; gap: 8px; }
     .sound-btn { font-size: 1.1rem; padding: 8px 20px; border-width: 3px; }
     .sound-btn .icon { font-size: 1.5rem; }
+    .size-picker { font-size: 1rem; padding: 6px 14px; border-width: 3px; gap: 6px; }
+    .size-picker select { font-size: 1rem; padding: 2px 6px; }
     .boards { gap: 20px; }
   }
 </style>
@@ -323,6 +364,15 @@
 </header>
 
 <div class="sound-bar">
+  <div class="size-picker">
+    <label class="size-field">행
+      <select id="rows-select" aria-label="행 수 선택"></select>
+    </label>
+    <span class="size-x" aria-hidden="true">×</span>
+    <label class="size-field">열
+      <select id="cols-select" aria-label="열 수 선택"></select>
+    </label>
+  </div>
   <button class="sound-btn" id="sound-toggle" type="button" aria-pressed="true">
     <span class="icon" aria-hidden="true">🔔</span><span class="label">소리 켜짐</span>
   </button>
@@ -353,7 +403,8 @@
 </main>
 
 <script>
-  const COLS = 7, ROWS = 5;
+  const SIZE_MIN = 1, SIZE_MAX = 10;
+  let cols = 7, rows = 5;
 
   /* ── 뾰옹~ 효과음 (웹 오디오 합성) ───── */
   let soundOn = true;
@@ -402,13 +453,15 @@
 
   function buildBoard(teamId) {
     const grid = document.getElementById('grid-' + teamId);
-    for (let r = 1; r <= ROWS; r++) {
+    grid.innerHTML = '';
+    grid.style.gridTemplateColumns = 'auto repeat(' + cols + ', 1fr)';
+    for (let r = 1; r <= rows; r++) {
       const num = document.createElement('div');
       num.className = 'row-num';
       num.textContent = r;
       num.setAttribute('aria-hidden', 'true');
       grid.appendChild(num);
-      for (let c = 1; c <= COLS; c++) {
+      for (let c = 1; c <= cols; c++) {
         const cell = document.createElement('button');
         cell.type = 'button';
         cell.className = 'cell';
@@ -440,8 +493,37 @@
     });
   });
 
-  buildBoard('a');
-  buildBoard('b');
+  function buildBoards() {
+    ['a', 'b'].forEach(teamId => {
+      buildBoard(teamId);
+      updateCount(teamId);
+    });
+  }
+
+  /* ── 행/열 크기 선택 ─────────────────── */
+  const rowsSelect = document.getElementById('rows-select');
+  const colsSelect = document.getElementById('cols-select');
+
+  [[rowsSelect, rows], [colsSelect, cols]].forEach(([select, current]) => {
+    for (let n = SIZE_MIN; n <= SIZE_MAX; n++) {
+      const opt = document.createElement('option');
+      opt.value = n;
+      opt.textContent = n;
+      if (n === current) opt.selected = true;
+      select.appendChild(opt);
+    }
+  });
+
+  rowsSelect.addEventListener('change', () => {
+    rows = Number(rowsSelect.value);
+    buildBoards();
+  });
+  colsSelect.addEventListener('change', () => {
+    cols = Number(colsSelect.value);
+    buildBoards();
+  });
+
+  buildBoards();
 </script>
 
 </body>
