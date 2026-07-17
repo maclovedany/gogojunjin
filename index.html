@@ -245,16 +245,18 @@
     display: grid;
     grid-template-columns: auto repeat(7, 1fr);
     gap: 10px;
+    justify-content: center;
+    align-content: center;
   }
 
   .row-num {
     display: grid;
     place-items: center;
     align-self: center;
-    width: clamp(2.4rem, 4.5vw, 3.4rem);
-    height: clamp(2.4rem, 4.5vw, 3.4rem);
+    width: min(clamp(2.4rem, 4.5vw, 3.4rem), calc(var(--cell, 999px) * 0.85));
+    height: min(clamp(2.4rem, 4.5vw, 3.4rem), calc(var(--cell, 999px) * 0.85));
     border-radius: 50%;
-    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-size: min(clamp(1.5rem, 3vw, 2.2rem), calc(var(--cell, 999px) * 0.5));
     color: #fff;
     text-shadow: 0 2px 0 rgba(0,0,0,.12);
   }
@@ -265,7 +267,7 @@
     aspect-ratio: 1 / 1;
     min-width: 0;
     border: none;
-    border-radius: 20px;
+    border-radius: min(20px, 24%);
     cursor: pointer;
     display: grid;
     place-items: center;
@@ -334,9 +336,9 @@
     .team { padding: 12px 10px 14px; border-radius: 18px; border-width: 4px; }
     .team-head { flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
     .row-num {
-      width: 1.7rem;
-      height: 1.7rem;
-      font-size: 1.1rem;
+      width: min(1.7rem, calc(var(--cell, 999px) * 0.85));
+      height: min(1.7rem, calc(var(--cell, 999px) * 0.85));
+      font-size: min(1.1rem, calc(var(--cell, 999px) * 0.55));
       box-shadow: none !important;
     }
     .count { font-size: 1rem; min-width: 60px; padding: 3px 12px; }
@@ -451,10 +453,35 @@
     if (soundOn) playPyong();
   });
 
+  /* 표 섹션 크기는 5×7 기준으로 고정하고, 그 안에서 칸 크기만 조절 */
+  const BASE_ROWS = 5, BASE_COLS = 7;
+
+  function layoutBoard(teamId) {
+    const grid = document.getElementById('grid-' + teamId);
+    const rowNum = grid.querySelector('.row-num');
+    if (!rowNum) return;
+
+    grid.style.removeProperty('--cell');  /* 행 번호 원래 크기로 측정 */
+    const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+    const numW = rowNum.offsetWidth;
+    const width = grid.clientWidth;
+
+    const baseCell = (width - numW - BASE_COLS * gap) / BASE_COLS;
+    const baseH = BASE_ROWS * baseCell + (BASE_ROWS - 1) * gap;
+    const cell = Math.min(
+      (width - numW - cols * gap) / cols,
+      (baseH - (rows - 1) * gap) / rows
+    );
+
+    grid.style.setProperty('--cell', cell + 'px');
+    grid.style.gridTemplateColumns = 'auto repeat(' + cols + ', ' + cell + 'px)';
+    grid.style.gridTemplateRows = 'repeat(' + rows + ', ' + cell + 'px)';
+    grid.style.height = baseH + 'px';
+  }
+
   function buildBoard(teamId) {
     const grid = document.getElementById('grid-' + teamId);
     grid.innerHTML = '';
-    grid.style.gridTemplateColumns = 'auto repeat(' + cols + ', 1fr)';
     for (let r = 1; r <= rows; r++) {
       const num = document.createElement('div');
       num.className = 'row-num';
@@ -496,9 +523,14 @@
   function buildBoards() {
     ['a', 'b'].forEach(teamId => {
       buildBoard(teamId);
+      layoutBoard(teamId);
       updateCount(teamId);
     });
   }
+
+  window.addEventListener('resize', () => {
+    ['a', 'b'].forEach(layoutBoard);
+  });
 
   /* ── 행/열 크기 선택 ─────────────────── */
   const rowsSelect = document.getElementById('rows-select');
